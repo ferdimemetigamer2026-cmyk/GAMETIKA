@@ -27,7 +27,7 @@
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
 <script>
 "use strict";
-const API_BASE="https://gametika.onrender.com";
+const API_BASE="https://gameti.onrender.com";
 const $=id=>document.getElementById(id);
 let token=localStorage.getItem("gametika_token")||"",me=null,socket=null,chatMode="public",activeUser=null;
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
