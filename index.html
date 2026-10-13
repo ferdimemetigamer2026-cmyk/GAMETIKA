@@ -113,7 +113,61 @@ function avatar(u){return u.avatar?`<img class="avatar" src="${esc(u.avatar)}" a
 function setStatus(id,t){const el=document.getElementById(id);if(el)el.textContent=t}
 async function init(){try{const d=await api('/api/me');me=d.user;renderAuth();await refreshAll();connectSocket();}catch{renderAuth();}}
 function renderAuth(){if(me){$('#authState').textContent='Angemeldet als '+me.username;$('#navAuth').innerHTML=`<span class="smalltext">👋 ${esc(me.displayName)}</span><button class="btn alt" id="logoutBtn">Logout</button>`;$('#logoutBtn').onclick=logout;$('#myAccount').innerHTML=`<div class="item">${avatar(me)}<div class="itemmain"><strong>${esc(me.displayName)}</strong><p class="smalltext">@${esc(me.username)}${me.role==='admin'?' · ADMIN':''}</p></div></div><p class="muted">Willkommen zurück! Bearbeite dein Profil oder öffne den Community-Chat.</p>`;$('#heroState').textContent='Willkommen, '+me.displayName;}else{$('#authState').textContent='Nicht angemeldet';$('#navAuth').innerHTML='<button class="btn" onclick="scrollToId(&quot;account&quot;)">Login / Registrieren</button>';$('#myAccount').innerHTML='<div class="empty">Bitte anmelden oder ein Konto erstellen.</div>';$('#profileContent').innerHTML='<div class="empty">Melde dich an, um dein Profil zu bearbeiten.</div>';$('#adminContent').innerHTML='<div class="empty">Nur für Administratoren.</div>';$('#heroState').textContent='Melde dich an und leg los';}}
-async function login(e){e.preventDefault();try{const d=await api('/api/login',{method:'POST',body:fdForm(e.target)});me=d.user;renderAuth();setStatus('loginStatus','Erfolgreich eingeloggt.');await refreshAll();connectSocket();}catch(err){setStatus('loginStatus',err.message)}}
+async function login(e) {
+  e.preventDefault();
+
+  try {
+    const form = new FormData(e.target);
+
+    const d = await api('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: form.get('username'),
+        password: form.get('password')
+      })
+    });
+
+    me = d.user;
+    renderAuth();
+    setStatus('loginStatus', 'Erfolgreich eingeloggt.');
+    await refreshAll();
+    connectSocket();
+  } catch (err) {
+    setStatus('loginStatus', err.message);
+  }
+}
+
+async function register(e) {
+  e.preventDefault();
+
+  try {
+    const form = new FormData(e.target);
+
+    const d = await api('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: form.get('username'),
+        displayName: form.get('displayName'),
+        password: form.get('password')
+      })
+    });
+
+    me = d.user;
+    renderAuth();
+    setStatus('registerStatus', 'Konto erstellt – willkommen!');
+    e.target.reset();
+    await refreshAll();
+    connectSocket();
+  } catch (err) {
+    setStatus('registerStatus', err.message);
+  }
+  }{e.preventDefault();try{const d=await api('/api/login',{method:'POST',body:fdForm(e.target)});me=d.user;renderAuth();setStatus('loginStatus','Erfolgreich eingeloggt.');await refreshAll();connectSocket();}catch(err){setStatus('loginStatus',err.message)}}
 async function register(e){e.preventDefault();try{const d=await api('/api/register',{method:'POST',body:fdForm(e.target)});me=d.user;renderAuth();setStatus('registerStatus','Konto erstellt – willkommen!');e.target.reset();await refreshAll();connectSocket();}catch(err){setStatus('registerStatus',err.message)}}
 async function logout(){try{await api('/api/logout',{method:'POST'});}catch{}if(socket)socket.disconnect();socket=null;me=null;renderAuth();setStatus('chatStatus','Chat nicht verbunden');$('#messages').innerHTML='<div class="empty">Melde dich an, um den Chat zu nutzen.</div>';refreshAll();}
 
