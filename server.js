@@ -20,7 +20,28 @@ function save(d){const tmp=dbPath+'.tmp';fs.writeFileSync(tmp,JSON.stringify(d,n
 const clean=(v,n)=>String(v||'').replace(/[<>]/g,'').trim().slice(0,n);
 const publicUser=u=>({id:u.id,username:u.username,displayName:u.displayName,bio:u.bio||'',avatar:u.avatar||'',role:u.role||'member'});
 const sessionMiddleware=session({store:new SQLiteStore({dir:DATA,db:'sessions.sqlite'}),secret:process.env.SESSION_SECRET||'CHANGE_THIS_LONG_RANDOM_SECRET_BEFORE_DEPLOYING',resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:7*24*60*60*1000}});
-app.use(sessionMiddleware);io.engine.use(sessionMiddleware);app.use(express.json({limit:'1mb'}));app.use(express.static(path.join(__dirname,'public')));
+app.use((req, res, next) => {
+  const allowedOrigin = 'https://gametikavision.netlify.app';
+
+  if (req.headers.origin === allowedOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type'
+    );
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS'
+    );
+  }
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});app.use(sessionMiddleware);io.engine.use(sessionMiddleware);app.use(express.json({limit:'1mb'}));app.use(express.static(path.join(__dirname,'public')));
 const videoExt=new Set(['.mp4','.webm','.mov','.zip','.7z','.png','.jpg','.jpeg']);
 function storageTo(dir){return multer.diskStorage({destination:(_r,_f,cb)=>cb(null,dir),filename:(_r,f,cb)=>cb(null,crypto.randomBytes(16).toString('hex')+path.extname(f.originalname).toLowerCase())})}
 const upload=multer({storage:storageTo(UPLOAD),limits:{fileSize:500*1024*1024},fileFilter:(_r,f,cb)=>videoExt.has(path.extname(f.originalname).toLowerCase())?cb(null,true):cb(new Error('Dateiformat nicht erlaubt.'))});
