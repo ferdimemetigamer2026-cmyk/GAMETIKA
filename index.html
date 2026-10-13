@@ -107,7 +107,7 @@ html{scroll-behavior:smooth;scroll-padding-top:90px}body{background:radial-gradi
 const $=s=>document.querySelector(s);let me=null,mode='public',activeUser=null,socket=null;
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
-async function api(url,opts={}){const r=await fetch(url,{credentials:'same-origin',...opts});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||'Anfrage fehlgeschlagen');return d;}
+async function api(url,opts={}){const r=await fetch(url,{credentials:'same-origin',...opts});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new
 function fdForm(form){return new FormData(form)}
 function avatar(u){return u.avatar?`<img class="avatar" src="${esc(u.avatar)}" alt="">`:`<div class="avatar">👤</div>`}
 function setStatus(id,t){const el=document.getElementById(id);if(el)el.textContent=t}
